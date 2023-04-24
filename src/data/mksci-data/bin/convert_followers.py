@@ -1,0 +1,6 @@
+# Convert followers file from old format:
+#   screen_name id followerid1 ...
+# to new format:
+# iso_timestamp screen_name followerid1...
+# We add a dummy time stamp.
+perl -ne 'chomp; @f = split; print "2015-02-28T08:52:18.22320 $f[0] @f[2..@f]\n";'
