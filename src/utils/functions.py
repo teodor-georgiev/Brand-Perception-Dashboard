@@ -157,3 +157,68 @@ def cross_correlation(df_1: pd.DataFrame, df_2: pd.DataFrame, column_name_1: str
     df_cross_correlation["Lag"] = df_cross_correlation["Lag"]/lag_step
     return df_cross_correlation
 
+
+def calculate_sentiment_percentages(df, neg_col, pos_col):
+    total = df[neg_col] + df[pos_col]
+    df[f"{neg_col}_perc"] = ((df[neg_col] / total) * 100).round(2)
+    df[f"{pos_col}_perc"] = ((df[pos_col] / total) * 100).round(2)
+    return df
+
+
+def raw_tweets_to_df(file):
+    # Read csv file
+    df_file = pd.read_csv(file, sep=";")
+    
+    # Select relevant columns
+    columns = ["date", "sentiment_neg", "sentiment_neu", "sentiment_pos"]
+    df_tweets = df_file[[col for col in df_file.columns if col in columns]]
+
+    # Set brand name and drop rows with missing values
+    df_tweets["brand"] = "Airbnb"
+    df_tweets = df_tweets.dropna()
+
+    # Set date format
+    df_tweets["date"] = pd.to_datetime(df_tweets["date"], format="%Y-%m-%d")
+    df_tweets["date"] = df_tweets["date"].dt.strftime("%Y-%m-%d")
+
+    # Replace , with . and convert to float
+    df_tweets["sentiment_neg"] = df_tweets["sentiment_neg"].str.replace(",", ".").astype(float)
+    df_tweets["sentiment_pos"] = df_tweets["sentiment_pos"].str.replace(",", ".").astype(float)
+    df_tweets["sentiment_neu"] = df_tweets["sentiment_neu"].str.replace(",", ".").astype(float)
+    
+    # Calculate overall sentiment
+    df_sentiment_overall = df_tweets[["brand","sentiment_neg","sentiment_pos"]].groupby("brand").mean().reset_index()
+    df_sentiment_overall = calculate_sentiment_percentages(df_sentiment_overall, "sentiment_neg", "sentiment_pos")
+    
+    # Calculate daily sentiment and polarity
+    df_sentiment_day = df_tweets.groupby(["brand", "date"]).mean().reset_index()
+    df_sentiment_day = calculate_sentiment_percentages(df_sentiment_day, "sentiment_neg", "sentiment_pos")
+    # df_sentiment_day["sentiment_neg_perc"] = ((df_sentiment_day["sentiment_neg"] / (df_sentiment_day["sentiment_neg"] + df_sentiment_day["sentiment_pos"]))*100).round(2)
+    # df_sentiment_day["sentiment_pos_perc"] = ((df_sentiment_day["sentiment_pos"] / (df_sentiment_day["sentiment_neg"] + df_sentiment_day["sentiment_pos"]))*100).round(2)
+    
+    df_sentiment_day["polarity"] = df_sentiment_day["sentiment_pos_perc"] - df_sentiment_day["sentiment_neg_perc"]
+    df_sentiment_day.rename(columns={"date":"Date"}, inplace=True)
+    df_sentiment_day = df_sentiment_day.dropna()
+    
+    # Calculate weekly polarity
+    df_tweets["date"] = pd.to_datetime(df_tweets["date"], format="%Y-%m-%d")
+    df_sentiment_week = df_tweets.groupby(["brand", pd.Grouper(key="date", freq="W-SUN")]).mean().reset_index()
+    df_sentiment_week.rename(columns={"date":"Date"}, inplace=True)
+    df_sentiment_week["Date"] -= pd.to_timedelta(6, unit="d")
+    df_sentiment_week = calculate_sentiment_percentages(df_sentiment_week, "sentiment_neg", "sentiment_pos")
+    # df_sentiment_week["sentiment_neg_perc"] = ((df_sentiment_week["sentiment_neg"] / (df_sentiment_week["sentiment_neg"] + df_sentiment_week["sentiment_pos"]))*100).round(2)
+    # df_sentiment_week["sentiment_pos_perc"] = ((df_sentiment_week["sentiment_pos"] / (df_sentiment_week["sentiment_neg"] + df_sentiment_week["sentiment_pos"]))*100).round(2)
+    df_sentiment_week["polarity"] = df_sentiment_week["sentiment_pos_perc"] - df_sentiment_week["sentiment_neg_perc"]
+    df_sentiment_week = df_sentiment_week.dropna()
+    
+    # Calculate monthly polarity
+    df_sentiment_month = df_tweets.groupby(["brand", pd.Grouper(key="date", freq="M")]).mean().reset_index()
+    df_sentiment_month.rename(columns={"date":"Date"}, inplace=True)
+    df_sentiment_month = calculate_sentiment_percentages(df_sentiment_month, "sentiment_neg", "sentiment_pos")
+    # df_sentiment_month["sentiment_neg_perc"] = ((df_sentiment_month["sentiment_neg"] / (df_sentiment_month["sentiment_neg"] + df_sentiment_month["sentiment_pos"]))*100).round(2)
+    # df_sentiment_month["sentiment_pos_perc"] = ((df_sentiment_month["sentiment_pos"] / (df_sentiment_month["sentiment_neg"] + df_sentiment_month["sentiment_pos"]))*100).round(2)
+    df_sentiment_month["polarity"] = df_sentiment_month["sentiment_pos_perc"] - df_sentiment_month["sentiment_neg_perc"]
+    df_sentiment_month.dropna(inplace=True)
+    
+    return df_sentiment_day, df_sentiment_week, df_sentiment_month, df_sentiment_overall
+
