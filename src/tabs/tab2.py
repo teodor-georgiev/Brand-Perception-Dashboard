@@ -1,15 +1,20 @@
 import pandas as pd
 from PIL import Image
-from dash import dcc, html, Input, Output
+from dash import dcc, html, Input, Output, State
 import dash_daq as daq
 import plotly.express as px
 import dash_bootstrap_components as dbc
 from utils.styles import *
 import plotly.graph_objects as go
-from utils.functions import pearson_correlation,cross_correlation
+from utils.functions import *
 import numpy as np
 from plotly.subplots import make_subplots
 from dash import callback
+import os
+import datetime
+import base64
+import io
+import csv
 
 # Tab 2
 # Read the data
@@ -20,8 +25,15 @@ brands_list = df_stocks_days["Brand Name"].unique()
 # remove AirBnb and Pepsi from numpy array
 brands_list = brands_list[np.where((brands_list != "Airbnb") & (brands_list != "Pepsi"))]
 
+
+if os.path.isfile("data/tab2/new_stocks/Stocks_daily.csv"):
+    df_stocks_days = concatenate_df(df_stocks_days, "data/tab2/new_stocks/Stocks_daily.csv","Brand Name")
+if os.path.isfile("data/tab2/new_stocks/Stocks_weekly.csv"):
+    df_stocks_weeks = concatenate_df(df_stocks_weeks, "data/tab2/new_stocks/Stocks_weekly.csv","Brand Name")
+    
 # Twitter Sentiment
 df_sentiment_overall = pd.read_csv("data/tab2/twitter_sentiment_overall.csv")
+
 df_tweets_sentiment_daily = pd.read_csv("data/tab2/twitter_sentiment_daily_percent.csv")
 df_tweets_sentiment_weekly = pd.read_csv("data/tab2/twitter_sentiment_weekly_percent.csv")
 df_tweets_sentiment_monthly = pd.read_csv("data/tab2/twitter_sentiment_monthly_percent.csv")
@@ -30,11 +42,34 @@ df_tweets_sentiment_monthly = pd.read_csv("data/tab2/twitter_sentiment_monthly_p
 df_tweets_count_daily = pd.read_csv("data/tab2/twitter_count_daily.csv")
 df_tweets_count_weekly = pd.read_csv("data/tab2/twitter_count_weekly.csv")
 
+if os.path.isfile("data/tab2/new_tweets/twitter_sentiment_day_percent.csv"):
+    df_tweets_sentiment_daily = concatenate_df(df_tweets_sentiment_daily, "data/tab2/new_tweets/twitter_sentiment_day_percent.csv","brand")
+    df_tweets_sentiment_weekly = concatenate_df(df_tweets_sentiment_weekly, "data/tab2/new_tweets/twitter_sentiment_week_percent.csv","brand")
+    df_tweets_sentiment_monthly = concatenate_df(df_tweets_sentiment_monthly, "data/tab2/new_tweets/twitter_sentiment_month_percent.csv","brand")
+    df_tweets_count_daily = concatenate_df(df_tweets_count_daily, "data/tab2/new_tweets/twitter_count_daily.csv","brand")
+    df_tweets_count_weekly = concatenate_df(df_tweets_count_weekly, "data/tab2/new_tweets/twitter_count_weekly.csv","brand")
+
 # Stocktwits Sentiment
 df_stocktwits_daily = pd.read_csv("data/tab2/stocktwits_daily.csv")
 df_stocktwits_weekly = pd.read_csv("data/tab2/stocktwits_weekly.csv")
 df_stocktwits_monthly = pd.read_csv("data/tab2/stocktwits_monthly.csv")
 df_stocktwits_overall = pd.read_csv("data/tab2/stocktwits_overall.csv")
+
+
+
+
+
+# Stocktwits Count
+df_stocktwits_count_daily = pd.read_csv("data/tab2/stocktwits_daily_count.csv")
+df_stocktwits_count_weekly = pd.read_csv("data/tab2/stocktwits_weekly_count.csv")
+
+# Read the new data
+if os.path.isfile("data/tab2/new_stocktwits/stocktwits_daily_count.csv"):
+    df_stocktwits_daily = concatenate_df(df_stocktwits_daily, "data/tab2/new_stocktwits/stocktwits_daily.csv","brand")
+    df_stocktwits_weekly = concatenate_df(df_stocktwits_weekly, "data/tab2/new_stocktwits/stocktwits_weekly.csv","brand")
+    df_stocktwits_monthly = concatenate_df(df_stocktwits_monthly, "data/tab2/new_stocktwits/stocktwits_monthly.csv","brand")
+    df_stocktwits_count_daily = concatenate_df(df_stocktwits_count_daily, "data/tab2/new_stocktwits/stocktwits_daily_count.csv","brand")
+    df_stocktwits_count_weekly = concatenate_df(df_stocktwits_count_weekly, "data/tab2/new_stocktwits/stocktwits_weekly_count.csv","brand")
 
 # Daily
 df_stocktwits_daily["polarity"] *= 100
@@ -51,22 +86,26 @@ df_stocktwits_weekly["negative"] = abs(df_stocktwits_weekly["positive"] - 100)
 df_stocktwits_monthly["positive"] = (df_stocktwits_monthly["polarity"] + 100) / 2
 df_stocktwits_monthly["negative"] = abs(df_stocktwits_monthly["positive"] - 100)
 
-
-
-# Stocktwits Count
-df_stocktwits_count_daily = pd.read_csv("data/tab2/stocktwits_daily_count.csv")
-df_stocktwits_count_weekly = pd.read_csv("data/tab2/stocktwits_weekly_count.csv")
-
 # YouGov
 df_yougov_daily = pd.read_csv("data/tab2/yougov_daily.csv")
 df_yougov_weekly = pd.read_csv("data/tab2/yougov_weekly.csv")
 df_yougov_monthly = pd.read_csv("data/tab2/yougov_monthly.csv")
 df_yougov_overall = pd.read_csv("data/tab2/yougov_overall.csv")
 
+df_yougov_monthly["Date"] = pd.to_datetime(df_yougov_monthly["Date"])
+df_yougov_monthly["Date"] = df_yougov_monthly["Date"] + pd.offsets.MonthEnd()
+
+if os.path.isfile("data/tab2/new_YouGov/yougov_daily.csv"):
+    df_yougov_daily = concatenate_df(df_yougov_daily, "data/tab2/new_YouGov/yougov_daily.csv","Brand")
+    df_yougov_weekly = concatenate_df(df_yougov_weekly, "data/tab2/new_YouGov/yougov_weekly.csv","Brand")
+    df_yougov_monthly = concatenate_df(df_yougov_monthly, "data/tab2/new_YouGov/yougov_monthly.csv","Brand")
+    
+
 yougov_brand_presence = ["Awareness","Attention","WOM Exposure","Ad Awareness","Buzz"]
 yougov_brand_image = ["Impression","Quality","Value","Recommend","Satisfaction","Reputation"]
 yougov_brand_relationship = ["Consideration", "Purchase Intent", "Current Customer ", "Former Customer"]
 
+brands_list = df_yougov_daily["Brand"].unique()
 # Options for the dropdown menu in the monthly and radar YouGov charts
 options = ['Image', 'Pressence', 'Relationship']
 radar_options = [{'label': option, 'value': option} for option in options]
@@ -89,6 +128,27 @@ charts_axis_names.update(yougov_charts)
 dropdown_options_tab2_1 = list(charts.keys())
 dropdown_options_tab2_2 = list(charts.keys())
 
+
+UPLOAD_STYLE = {
+                    'width': '100%',
+                    'height': '30px',
+                    'lineHeight': '30px',  # Reduce the lineHeight to match the height of the box
+                    'borderWidth': '1px',
+                    'borderStyle': 'dashed',
+                    'borderRadius': '5px',
+                    'textAlign': 'center',
+                }
+upload_field = dcc.Upload(
+                id='upload-data',
+                children=html.Div([
+                    'Drag and Drop or ',
+                    html.A('Select Files',id="upload-button")
+                ], className='upload-area',style={"justify-content": "center","align-items": "center",'textAlign': 'center',"float":"left","margin-left":"50px"}),
+                style=UPLOAD_STYLE,
+                # Allow multiple files to be uploaded
+                multiple=True
+            )
+
 # Begin Content of sidebar in Tab 2
 switch_1_tab_2 =  html.Div(
             [
@@ -99,9 +159,9 @@ switch_1_tab_2 =  html.Div(
 )
 
 sidebar_2 = [
-        html.H3("Filters", style={"textAlign": "center",}),
-        html.Hr(style={"margin-top":"24px"}),
-        html.Img(id="brand-image",src="assets/Apple.png",style={"width":"100%","height":"125px","object-fit":"contain","margin-top":"-30px"}),
+        html.H3("Filters", style={"textAlign": "center","margin-bottom":"1rem"}),
+        html.Hr(style={"margin-top":"1px"}),
+        html.Img(id="brand-image",src="assets/Apple.png",style={"width":"100%","height":"110px","object-fit":"contain","margin-top":"-30px"}),
         dbc.Nav
         (
             [
@@ -117,7 +177,8 @@ sidebar_2 = [
                 dcc.Dropdown(dropdown_options_tab2_2,None,id='chart-dropdown-2',clearable=True),
                 html.Br(),
                 
-                switch_1_tab_2,  
+                switch_1_tab_2,
+                upload_field  
             ],
             vertical=True,
             pills=True,
@@ -596,6 +657,8 @@ def update_brand_image_srs(brand_dropdown):
               )
 def update_brand_overall_sentiment(brand_dropdown):
     df_sentiment = df_sentiment_overall[df_sentiment_overall["brand"] == brand_dropdown]
+    if len(df_sentiment) == 0:
+        return go.Figure(data=[])
     labels = ['Positive', 'Negative']
     values = [df_sentiment["sentiment_pos_perc"].values[0], df_sentiment["sentiment_neg_perc"].values[0]]
     middle_text = str(round(df_sentiment["sentiment_pos_perc"].values[0],1)) + "%"
@@ -619,6 +682,8 @@ def update_brand_overall_sentiment(brand_dropdown):
               )
 def update_brand_overall_sentiment(brand_dropdown):
     df_sentiment_stocktwits = df_stocktwits_overall[df_stocktwits_overall["brand"] == brand_dropdown]
+    if len(df_sentiment_stocktwits) == 0:
+        return go.Figure(data=[])
     labels = ['Bullish', 'Bearish']
     values = [df_sentiment_stocktwits["trend"].values[0], abs(df_sentiment_stocktwits["trend"].values[0] - 1)]
     
@@ -643,12 +708,17 @@ def update_brand_overall_sentiment(brand_dropdown):
               Input("brand-dropdown","value"),
               Input("tabs_wordcloud","value"),
               )  
-def update_wordcloud(brand_dropdown,tabs_wordcloud):
+def update_wordcloud(brand_dropdown, tabs_wordcloud):
     brand_name = brand_dropdown
     polarity = tabs_wordcloud
-    source = Image.open(f"data/tab2/wordclouds/{brand_name}_{polarity}_wordcloud_square.png")
-    return source
+    image_path = f"data/tab2/wordclouds/{brand_name}_{polarity}_wordcloud_square.png"
 
+    if os.path.exists(image_path):
+        source = Image.open(image_path)
+    else:
+        source = Image.open("data/tab2/wordclouds/wordcloud_placeholder.png")
+
+    return source
 
 # Callback for monthly YouGov charts
 @callback(Output("yougov_monthly","figure"),
@@ -763,3 +833,138 @@ def update_radar_charts(brand_dropdown,radar_dropdown):
                                         angularaxis_tickvals=[0,1,2,3],
                                     )
         return fig_relationship
+    
+    
+@callback(Output("upload-data", "style"),
+                Input('upload-data', 'contents'),
+                State('upload-data', 'filename'),
+                # State('upload-data', 'last_modified')
+                )
+def process_csv(list_of_contents, list_of_names):
+    recalculate_twitter = False
+    recalculate_stocktwits = False
+    if list_of_names is not None:
+        for contents, name in zip(list_of_contents, list_of_names):
+            if name.endswith('.csv'):
+        
+                # Check if the file is a CSV
+                # if name.endswith('.csv'):
+                if name == "YouGov.csv":
+                    name = "yougov.csv"
+                    yougov_directory = "data/tab2/new_YouGov/"
+                    process_data_file(name, contents, yougov_directory,yougov_to_df)
+                elif name == "Stocks_daily.csv":
+                    stocks_directory = "data/tab2/new_stocks/"
+                    process_data_file(name, contents, stocks_directory,None)
+                elif name == "Stocks_weekly.csv":
+                    stocks_directory = "data/tab2/new_stocks/"
+                    process_data_file(name, contents, stocks_directory,None)
+                        
+                else:
+                    # Extract the brand and data source from the filename
+                    brand, data_source = name.split('_')
+                    data_source = os.path.splitext(data_source)[0]
+                    directory = f"data/tab2/new_{data_source}/{brand}/"
+                    
+                    if data_source == "tweets":
+                        recalculate_twitter = True
+                        process_data_file (name, contents, directory, tweets_to_df)
+                        # if not os.path.exists(directory):
+                        #     os.makedirs(directory)
+                            
+                        # prefix, base64_string = contents.split(',', 1)
+                        # assert prefix == "data:text/csv;base64"
+
+                        # # Decode the base64-encoded CSV data
+                        # decoded = base64.b64decode(base64_string)
+
+                        # # # Convert the decoded bytes to a string
+                        # # decoded_str = decoded.decode('utf-8')
+                        
+                        # # Load the CSV data into a Pandas DataFrame
+                        # # csv_rows = list(csv.reader(decoded_str.splitlines()))
+                        # df_new_tweets = pd.read_csv(io.StringIO(decoded.decode('utf-8')))
+                        # df_new_tweets["brand"] = brand
+                        # # df_new_tweets.to_csv(os.path.join(directory, name), index=False)
+                        
+                        # # Check if the file already exists
+                        # if os.path.isfile(os.path.join(directory, name)):
+                        #     # If the file exists, read it as a pandas DataFrame
+                        #     df_existing_tweets = pd.read_csv(os.path.join(directory, name))
+                            
+                        #     # Concatenate the new DataFrame with the existing DataFrame
+                        #     df_concatenated_tweets = pd.concat([df_existing_tweets, df_new_tweets], ignore_index=True)
+                        #     df_concatenated_tweets = df_concatenated_tweets.drop_duplicates()
+                            
+                        #     # Write the concatenated DataFrame to the CSV file
+                        #     df_concatenated_tweets.to_csv(os.path.join(directory, name), index=False)
+                        #     tweets_to_df(name,directory,df_concatenated_tweets)
+                            
+                        # else:
+                        #     # If the file does not exist, write the new DataFrame to the CSV file
+                        #     df_new_tweets.to_csv(os.path.join(directory, name), index=False)
+                        #     tweets_to_df(name,directory,df_new_tweets)
+
+                    elif data_source == "stocktwits":
+                        recalculate_stocktwits = True
+                        # if not os.path.exists(directory):
+                        #     os.makedirs(directory)
+                        # prefix, base64_string = contents.split(',', 1)
+                        # assert prefix == "data:text/csv;base64"
+
+                        # # Decode the base64-encoded CSV data
+                        # decoded = base64.b64decode(base64_string)
+                        
+                        # df_new_stocktwits = pd.read_csv(io.StringIO(decoded.decode('utf-8')),delimiter=";")
+                        # df_new_stocktwits["brand"] = brand
+
+                        # # Define the delimiters to try
+                        # delimiters = [',', ';']
+
+                        # # Iterate over the delimiters and try reading the data
+                        # for delimiter in delimiters:
+                        #     try:
+                        #         df_new_stocktwits = pd.read_csv(io.StringIO(decoded.decode('utf-8')), delimiter=delimiter)
+                        #         # If reading succeeds, break the loop
+                        #         break
+                        #     except pd.errors.ParserError:
+                        #         continue                        
+                        
+                        # if os.path.isfile(os.path.join(directory, name)):
+                        #     # If the file exists, read it as a pandas DataFrame
+                        #     df_existing_stocktwits = pd.read_csv(os.path.join(directory, name))
+                            
+                        #     # Concatenate the new DataFrame with the existing DataFrame
+                        #     df_concatenated_stocktwits = pd.concat([df_existing_stocktwits, df_new_stocktwits], ignore_index=True)
+                        #     df_concatenated_stocktwits = df_concatenated_stocktwits.drop_duplicates()
+                            
+                        #     # Write the concatenated DataFrame to the CSV file
+                        #     df_concatenated_stocktwits.to_csv(os.path.join(directory, name), index=False)
+                        #     stocktwits_to_df(name,directory,df_concatenated_stocktwits)
+                            
+                        # else:
+                        #     # If the file does not exist, write the new DataFrame to the CSV file
+                        #     df_new_stocktwits.to_csv(os.path.join(directory, name), index=False)
+                        #     stocktwits_to_df(name,directory,df_new_stocktwits)
+                        process_data_file(name, contents, directory, stocktwits_to_df)
+            # Save Brand Logo
+            elif name.endswith('.png'):
+                data = contents.encode("utf8").split(b";base64,")[1]
+                if not os.path.isfile("assets/"+name):
+                    with open("assets/"+name, "wb") as fp:
+                        fp.write(base64.decodebytes(data))
+                    
+        if recalculate_twitter or recalculate_stocktwits:
+            recalculate_values(recalculate_twitter,recalculate_stocktwits)
+                    
+                    
+    
+    return {
+                    'width': '100%',
+                    'height': '30px',
+                    'lineHeight': '30px',
+                    'borderWidth': '1px',
+                    'borderStyle': 'dashed',
+                    'borderRadius': '5px',
+                    'textAlign': 'center',
+                }

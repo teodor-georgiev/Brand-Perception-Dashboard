@@ -69,7 +69,9 @@ dashboard_main = html.Div(
 external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
 # external_stylesheets.append(dbc.themes.BOOTSTRAP)
 
-app = Dash(__name__,external_stylesheets=external_stylesheets,suppress_callback_exceptions=True)
+app = Dash(__name__,external_stylesheets=external_stylesheets,suppress_callback_exceptions=True,
+                meta_tags=[{'name': 'viewport',
+                            'content': 'width=device-width, initial-scale=1.0, maximum-scale=1.2, minimum-scale=0.5,'}])
 
 # Create server variable with Flask server object for use with gunicorn
 server = app.server
@@ -104,4 +106,4 @@ def render_sidebar(tab):
 
            
 if __name__ == "__main__":
-	app.run_server(port='8080',debug=False)
+	app.run_server(port='8080',debug=True)
