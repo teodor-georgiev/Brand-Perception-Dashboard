@@ -342,7 +342,21 @@ def recalculate_values(twitter_bool,stocktwits_bool):
         
 
 def update_data(name, data_directory, df_new_data, data_to_df_func=None):
-    
+    """
+    Updates an existing data file or creates a new one by concatenating a new DataFrame with the existing data.
+
+    Parameters
+    ----------
+    name : str
+        File name.
+    data_directory : str
+        Directory where the data is stored.
+    df_new_data : Pandas DataFrame
+        New DataFrame to be concatenated with the existing data.
+    data_to_df_func : function, optional
+        Function to be called after updating the data file, typically used to perform additional operations on the updated DataFrame.
+        Default is None.
+    """    
     file_path = os.path.join(data_directory, name)
     
     if os.path.isfile(file_path):
@@ -368,16 +382,16 @@ def update_data(name, data_directory, df_new_data, data_to_df_func=None):
 
 def process_data_file(name, contents, data_directory,data_to_df_func):
     """
-    _summary_
+    Processes the contents of a uploaded file and saves it to the data directory.
 
     Parameters
     ----------
-    name : _type_
-        _description_
-    contents : _type_
-        _description_
-    data_directory : _type_
-        _description_
+    name : str
+        File name.
+    contents : list
+        List containing the contents of the file.
+    data_directory : str
+        Directory where the data is stored.
     """    
     if not os.path.exists(data_directory):
         os.makedirs(data_directory)
@@ -400,6 +414,23 @@ def process_data_file(name, contents, data_directory,data_to_df_func):
     update_data(name, data_directory, df_new_data, data_to_df_func)
 
 def concatenate_df (df, new_df_path, brand_column):
+    """
+    Concatenates a new DataFrame to an existing DataFrame, removes duplicates and sorts the DataFrame by brand and date.
+
+    Parameters
+    ----------
+    df : Pandas DataFrame
+        Existing DataFrame to which the new DataFrame will be concatenated.
+    new_df_path : str
+        Path to the new DataFrame file in CSV format.
+    brand_column : str
+        Name of the column in the DataFrame to be used for sorting by brand.
+
+    Returns
+    -------
+    Pandas DataFrame
+        Concatenated DataFrame with duplicates removed and sorted by brand and date.
+    """    
     df = pd.concat([df, pd.read_csv(new_df_path)])
     df.drop_duplicates(inplace = True)
     df.sort_values(by = [brand_column, "Date"], inplace = True)

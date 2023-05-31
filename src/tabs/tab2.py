@@ -323,7 +323,7 @@ content_third_row = html.Div(
             id="brand_overall_sentiment",
             style={
                 **BASE_CHART,
-                "width": "300px",
+                # "width": "300px",
                 "margin-left": "3px",
                 "margin-bottom": "10px"
             },
@@ -335,7 +335,7 @@ content_third_row = html.Div(
                     id="brand_sentiment_time_chart",
                     style={
                         "border": "1px solid #e0e0e0",
-                        "width": "100%",
+                        # "width": "100%",
                         "background-color": "white",
                         "border-radius": "10px"
                     },
@@ -355,18 +355,18 @@ content_third_row = html.Div(
             ],
             style={
                 "position": "relative",
-                "width": "615px",
-                "float": "left",
+                # "width": "615px",
+                # "float": "left",
                 "margin-top": "10px",
-                "margin-left": "10px",
+                # "margin-left": "10px",
             }
         ),
         dcc.Graph(
             id="brand_overall_stocktwits_sentiment",
             style={
                 **BASE_CHART,
-                "width": "300px",
-                "margin-left": "10px",
+                # "width": "300px",
+                "margin-left": "1px",
                 "margin-bottom": "10px"
             },
             config=GRAPH_CONFIG
@@ -377,7 +377,7 @@ content_third_row = html.Div(
                     id="brand_sentiment_time_chart_StockTwits",
                     style={
                         "border": "1px solid #e0e0e0",
-                        "width": "100%",
+                        # "width": "100%",
                         "background-color": "white",
                         "border-radius": "10px"
                     },
@@ -397,14 +397,14 @@ content_third_row = html.Div(
             ],
             style={
                 "position": "relative",
-                "width": "612px",
-                "float": "left",
+                # "width": "612px",
+                # "float": "left",
                 "margin-top": "10px",
-                "margin-left": "10px",
+                # "margin-left": "10px",
             }
         ),        
     ],
-    style={"margin-left": "-338px"}
+    style={"margin-left": "-338px"},className="content_third_row"
 )
 
 content_tab2 = [content_first_row, content_second_row, content_third_row]
