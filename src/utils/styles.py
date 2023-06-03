@@ -115,16 +115,17 @@ BASE_CHART = {
 WORDCLOUD_LABEL = {
     "border": "0px solid #e0e0e0",
     "margin-top": "0px",
-    "margin-left": "55px",
+    "margin-left": "17%",
     "width": "92%",
     "text-align": "left",
-    "font-size": "18px",
+    # "font-size": "0.9vw",
+    "font-size" : "18px",
     "font-family": "Helvetica",
 }
 
 
 WORDCLOUD_PARENT = {
-    "width": "322px",
+    "width": "20.5%",
     "float": "left",
     "height": "450px",
     "margin-top": "10px",

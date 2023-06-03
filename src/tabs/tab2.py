@@ -192,7 +192,7 @@ sidebar_2 = [
 brand_stocks_chart = dcc.Graph(
     id='brand_stocks_chart',
     style={**BASE_CHART,
-           "width": "1191px"
+           "width": "78%"
     },
     config=GRAPH_CONFIG
 )
@@ -204,20 +204,20 @@ wordcloud_tabs = dcc.Tabs(
         dcc.Tab(
             label='Positive',
             value='positive',
-            style={**SMALL_TABS, 'width':'50px'},
-            selected_style={**SMALL_TABS_SELECTED, 'width':'50px'}
+            style={**SMALL_TABS, 'width':'35%'},
+            selected_style={**SMALL_TABS_SELECTED, 'width':'35%'}
         ),
         dcc.Tab(
             label='Negative',
             value='negative',
-            style={**SMALL_TABS, 'width':'50px'},
-            selected_style={**SMALL_TABS_SELECTED, 'width':'50px'}
+            style={**SMALL_TABS, 'width':'35%'},
+            selected_style={**SMALL_TABS_SELECTED, 'width':'35%'}
         )
     ],
     style={
         "position": "absolute",
         "top": "5px",
-        "left": "210px",
+        "left": "65%",
         "font-size": "11px"
     }
 )
@@ -229,7 +229,7 @@ wordcloud = html.Div(
             id="wordcloud",
             src=apple_wordcloud_img,
             style={
-                "object-fit": "contain",
+                "object-fit": "fill",
                 "width": "99%",
                 "height": "90%",
                 "margin-right": "5px"
@@ -244,7 +244,7 @@ content_first_row = html.Div(
     [ 
         brand_stocks_chart,
         wordcloud
-    ]
+    ],className="content_first_row"
 )
   
 
@@ -277,7 +277,7 @@ content_second_row = html.Div(
             id="crosscorrelation_chart",
             style={
                 **BASE_CHART,
-                "width": "665px",
+                # "width": "665px",
                 "margin-left": "3px"
             },
             config=GRAPH_CONFIG
@@ -292,7 +292,7 @@ content_second_row = html.Div(
             ],
             style={
                 **YOUGOV_CHART,
-                "width": "786px"
+                # "width": "786px"
             }
         ),
         html.Div(
@@ -306,11 +306,11 @@ content_second_row = html.Div(
             ],
             style={
                 **YOUGOV_CHART,
-                "width": "385px"
+                # "width": "385px"
             }
         ),
     ],
-    style={"margin-left": "-338px"}
+    style={"margin-left": "-22%"}, className="content_second_row"
 )
 
 day_week_month_tabs =  [dcc.Tab(label='D', value='D',style=SMALL_TABS,selected_style=SMALL_TABS_SELECTED),
@@ -404,7 +404,7 @@ content_third_row = html.Div(
             }
         ),        
     ],
-    style={"margin-left": "-338px"},className="content_third_row"
+    style={"margin-left": "-22%"},className="content_third_row"
 )
 
 content_tab2 = [content_first_row, content_second_row, content_third_row]
