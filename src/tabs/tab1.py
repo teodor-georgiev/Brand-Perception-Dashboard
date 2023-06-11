@@ -113,7 +113,7 @@ content_first_row = html.Div(
             id='brand_perception_culotta',
             style={
                 "border": "1px solid #e0e0e0",
-                "width": "99.1%",
+                "width": "99.9%",
                 "float": "left",
                 "margin-top": "10px",
                 "border-radius": "10px",
@@ -126,8 +126,8 @@ content_first_row = html.Div(
 
 content_second_row = html.Div([
     dcc.Graph(id='brand_perception_culotta_boxplot_x', style=GRAPH, config=GRAPH_CONFIG), 
-    dcc.Graph(id='brand_perception_culotta_boxplot_y', style={**GRAPH, "margin-left": "10px"}, config=GRAPH_CONFIG)
-])
+    dcc.Graph(id='brand_perception_culotta_boxplot_y', style=GRAPH, config=GRAPH_CONFIG)
+], className="tab-1-boxplot-row")
 
 content_tab1 = [content_first_row, content_second_row]
 # End of content of main content in Tab 1

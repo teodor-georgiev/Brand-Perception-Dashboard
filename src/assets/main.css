@@ -3,10 +3,17 @@ body{
 background-color: #f8f8f8;
 }
 
+.tab-1-boxplot-row{
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  grid-gap: 10px;
+  width: 100%;
+}
+
 .content_first_row{
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 0.27fr);
-  width: 100%;
+  width: 100.3%;
 }
 
 .content_second_row{

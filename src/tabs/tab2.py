@@ -71,7 +71,7 @@ if os.path.isfile("data/tab2/new_stocktwits/stocktwits_daily_count.csv"):
     df_stocktwits_count_daily = concatenate_df(df_stocktwits_count_daily, "data/tab2/new_stocktwits/stocktwits_daily_count.csv","brand")
     df_stocktwits_count_weekly = concatenate_df(df_stocktwits_count_weekly, "data/tab2/new_stocktwits/stocktwits_weekly_count.csv","brand")
     df_stocktwits_overall = df_stocktwits_daily[["brand","bullish","bearish"]].groupby("brand").sum().reset_index().round(2)
-    df_stocktwits_overall["trend"] = (df_stocktwits_overall["bullish"] - df_stocktwits_overall["bearish"]) / (df_stocktwits_overall["bullish"] + df_stocktwits_overall["bearish"])
+    df_stocktwits_overall["trend"] = (df_stocktwits_overall["bullish"]) / (df_stocktwits_overall["bullish"] + df_stocktwits_overall["bearish"])
 
 # Daily
 
@@ -106,7 +106,7 @@ yougov_brand_presence = ["Awareness","Attention","WOM Exposure","Ad Awareness","
 yougov_brand_image = ["Impression","Quality","Value","Recommend","Satisfaction","Reputation"]
 yougov_brand_relationship = ["Consideration", "Purchase Intent", "Current Customer ", "Former Customer"]
 
-brands_list = df_yougov_daily["Brand"].unique()
+# brands_list = df_yougov_daily["Brand"].unique()
 # Options for the dropdown menu in the monthly and radar YouGov charts
 options = ['Image', 'Pressence', 'Relationship']
 radar_options = [{'label': option, 'value': option} for option in options]
@@ -539,7 +539,7 @@ def update_brand_stocks_chart(brand_dropdown, chart_dropdown, chart_dropdown_2, 
     
     # Calculate cross-correlation
     elif chart_dropdown_2 != None:
-        title = "Cross-Correlation between "  + charts_axis_names[chart_dropdown] + " and " + charts_axis_names[chart_dropdown_2]
+        title = "Cross-correlation between "  + charts_axis_names[chart_dropdown] + " and " + charts_axis_names[chart_dropdown_2]
         df_cross_correlation = cross_correlation(charts_df[chart_dropdown], charts_df[chart_dropdown_2],charts[chart_dropdown], charts[chart_dropdown_2],lag_periods ,lag_step)
         cross_correlation_fig = go.Figure(data =[
                                                     go.Scatter(x=df_cross_correlation["Lag"],
@@ -846,10 +846,9 @@ def process_csv(list_of_contents, list_of_names):
     recalculate_stocktwits = False
     if list_of_names is not None:
         for contents, name in zip(list_of_contents, list_of_names):
+            # Check if the file is a CSV
             if name.endswith('.csv'):
         
-                # Check if the file is a CSV
-                # if name.endswith('.csv'):
                 if name == "YouGov.csv":
                     name = "yougov.csv"
                     yougov_directory = "data/tab2/new_YouGov/"
@@ -859,8 +858,7 @@ def process_csv(list_of_contents, list_of_names):
                     process_data_file(name, contents, stocks_directory,None)
                 elif name == "Stocks_weekly.csv":
                     stocks_directory = "data/tab2/new_stocks/"
-                    process_data_file(name, contents, stocks_directory,None)
-                        
+                    process_data_file(name, contents, stocks_directory,None)       
                 else:
                     # Extract the brand and data source from the filename
                     brand, data_source = name.split('_')
@@ -870,83 +868,9 @@ def process_csv(list_of_contents, list_of_names):
                     if data_source == "tweets":
                         recalculate_twitter = True
                         process_data_file (name, contents, directory, tweets_to_df)
-                        # if not os.path.exists(directory):
-                        #     os.makedirs(directory)
-                            
-                        # prefix, base64_string = contents.split(',', 1)
-                        # assert prefix == "data:text/csv;base64"
-
-                        # # Decode the base64-encoded CSV data
-                        # decoded = base64.b64decode(base64_string)
-
-                        # # # Convert the decoded bytes to a string
-                        # # decoded_str = decoded.decode('utf-8')
-                        
-                        # # Load the CSV data into a Pandas DataFrame
-                        # # csv_rows = list(csv.reader(decoded_str.splitlines()))
-                        # df_new_tweets = pd.read_csv(io.StringIO(decoded.decode('utf-8')))
-                        # df_new_tweets["brand"] = brand
-                        # # df_new_tweets.to_csv(os.path.join(directory, name), index=False)
-                        
-                        # # Check if the file already exists
-                        # if os.path.isfile(os.path.join(directory, name)):
-                        #     # If the file exists, read it as a pandas DataFrame
-                        #     df_existing_tweets = pd.read_csv(os.path.join(directory, name))
-                            
-                        #     # Concatenate the new DataFrame with the existing DataFrame
-                        #     df_concatenated_tweets = pd.concat([df_existing_tweets, df_new_tweets], ignore_index=True)
-                        #     df_concatenated_tweets = df_concatenated_tweets.drop_duplicates()
-                            
-                        #     # Write the concatenated DataFrame to the CSV file
-                        #     df_concatenated_tweets.to_csv(os.path.join(directory, name), index=False)
-                        #     tweets_to_df(name,directory,df_concatenated_tweets)
-                            
-                        # else:
-                        #     # If the file does not exist, write the new DataFrame to the CSV file
-                        #     df_new_tweets.to_csv(os.path.join(directory, name), index=False)
-                        #     tweets_to_df(name,directory,df_new_tweets)
 
                     elif data_source == "stocktwits":
                         recalculate_stocktwits = True
-                        # if not os.path.exists(directory):
-                        #     os.makedirs(directory)
-                        # prefix, base64_string = contents.split(',', 1)
-                        # assert prefix == "data:text/csv;base64"
-
-                        # # Decode the base64-encoded CSV data
-                        # decoded = base64.b64decode(base64_string)
-                        
-                        # df_new_stocktwits = pd.read_csv(io.StringIO(decoded.decode('utf-8')),delimiter=";")
-                        # df_new_stocktwits["brand"] = brand
-
-                        # # Define the delimiters to try
-                        # delimiters = [',', ';']
-
-                        # # Iterate over the delimiters and try reading the data
-                        # for delimiter in delimiters:
-                        #     try:
-                        #         df_new_stocktwits = pd.read_csv(io.StringIO(decoded.decode('utf-8')), delimiter=delimiter)
-                        #         # If reading succeeds, break the loop
-                        #         break
-                        #     except pd.errors.ParserError:
-                        #         continue                        
-                        
-                        # if os.path.isfile(os.path.join(directory, name)):
-                        #     # If the file exists, read it as a pandas DataFrame
-                        #     df_existing_stocktwits = pd.read_csv(os.path.join(directory, name))
-                            
-                        #     # Concatenate the new DataFrame with the existing DataFrame
-                        #     df_concatenated_stocktwits = pd.concat([df_existing_stocktwits, df_new_stocktwits], ignore_index=True)
-                        #     df_concatenated_stocktwits = df_concatenated_stocktwits.drop_duplicates()
-                            
-                        #     # Write the concatenated DataFrame to the CSV file
-                        #     df_concatenated_stocktwits.to_csv(os.path.join(directory, name), index=False)
-                        #     stocktwits_to_df(name,directory,df_concatenated_stocktwits)
-                            
-                        # else:
-                        #     # If the file does not exist, write the new DataFrame to the CSV file
-                        #     df_new_stocktwits.to_csv(os.path.join(directory, name), index=False)
-                        #     stocktwits_to_df(name,directory,df_new_stocktwits)
                         process_data_file(name, contents, directory, stocktwits_to_df)
             # Save Brand Logo
             elif name.endswith('.png'):

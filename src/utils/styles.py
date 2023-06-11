@@ -64,7 +64,7 @@ SWITCH = {
 
 GRAPH = {
     "border": "1px solid #e0e0e0",
-    "width": "49.2%",
+    "width": "100%",
     "float": "left",
     "margin-top": "10px",
     "border-radius": "10px",
