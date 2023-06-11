@@ -3,18 +3,15 @@ from PIL import Image
 from dash import dcc, html, Input, Output, State
 import dash_daq as daq
 import plotly.express as px
+import plotly.graph_objects as go
+from plotly.subplots import make_subplots
 import dash_bootstrap_components as dbc
 from utils.styles import *
-import plotly.graph_objects as go
 from utils.functions import *
 import numpy as np
-from plotly.subplots import make_subplots
 from dash import callback
 import os
-import datetime
 import base64
-import io
-import csv
 
 # Tab 2
 # Read the data
@@ -48,6 +45,8 @@ if os.path.isfile("data/tab2/new_tweets/twitter_sentiment_day_percent.csv"):
     df_tweets_sentiment_monthly = concatenate_df(df_tweets_sentiment_monthly, "data/tab2/new_tweets/twitter_sentiment_month_percent.csv","brand")
     df_tweets_count_daily = concatenate_df(df_tweets_count_daily, "data/tab2/new_tweets/twitter_count_daily.csv","brand")
     df_tweets_count_weekly = concatenate_df(df_tweets_count_weekly, "data/tab2/new_tweets/twitter_count_weekly.csv","brand")
+    df_sentiment_overall = df_tweets_sentiment_daily[["brand","sentiment_neg","sentiment_pos"]].groupby("brand").mean().reset_index()
+    df_sentiment_overall = calculate_sentiment_percentages(df_sentiment_overall, "sentiment_neg", "sentiment_pos")
 
 # Stocktwits Sentiment
 df_stocktwits_daily = pd.read_csv("data/tab2/stocktwits_daily.csv")
@@ -61,6 +60,7 @@ df_stocktwits_overall = pd.read_csv("data/tab2/stocktwits_overall.csv")
 
 # Stocktwits Count
 df_stocktwits_count_daily = pd.read_csv("data/tab2/stocktwits_daily_count.csv")
+df_stocktwits_daily["polarity"] *= 100
 df_stocktwits_count_weekly = pd.read_csv("data/tab2/stocktwits_weekly_count.csv")
 
 # Read the new data
@@ -70,19 +70,19 @@ if os.path.isfile("data/tab2/new_stocktwits/stocktwits_daily_count.csv"):
     df_stocktwits_monthly = concatenate_df(df_stocktwits_monthly, "data/tab2/new_stocktwits/stocktwits_monthly.csv","brand")
     df_stocktwits_count_daily = concatenate_df(df_stocktwits_count_daily, "data/tab2/new_stocktwits/stocktwits_daily_count.csv","brand")
     df_stocktwits_count_weekly = concatenate_df(df_stocktwits_count_weekly, "data/tab2/new_stocktwits/stocktwits_weekly_count.csv","brand")
+    df_stocktwits_overall = df_stocktwits_daily[["brand","bullish","bearish"]].groupby("brand").sum().reset_index().round(2)
+    df_stocktwits_overall["trend"] = (df_stocktwits_overall["bullish"] - df_stocktwits_overall["bearish"]) / (df_stocktwits_overall["bullish"] + df_stocktwits_overall["bearish"])
 
 # Daily
-df_stocktwits_daily["polarity"] *= 100
+
 df_stocktwits_daily["positive"] = (df_stocktwits_daily["polarity"] + 100) / 2
 df_stocktwits_daily["negative"] = abs(df_stocktwits_daily["positive"] - 100)
 
 # Weekly
-# df_stocktwits_weekly["polarity"] *= 100
 df_stocktwits_weekly["positive"] = (df_stocktwits_weekly["polarity"] + 100) / 2
 df_stocktwits_weekly["negative"] = abs(df_stocktwits_weekly["positive"] - 100)
 
 # Monthly
-# df_stocktwits_monthly["polarity"] *= 100
 df_stocktwits_monthly["positive"] = (df_stocktwits_monthly["polarity"] + 100) / 2
 df_stocktwits_monthly["negative"] = abs(df_stocktwits_monthly["positive"] - 100)
 
@@ -99,6 +99,7 @@ if os.path.isfile("data/tab2/new_YouGov/yougov_daily.csv"):
     df_yougov_daily = concatenate_df(df_yougov_daily, "data/tab2/new_YouGov/yougov_daily.csv","Brand")
     df_yougov_weekly = concatenate_df(df_yougov_weekly, "data/tab2/new_YouGov/yougov_weekly.csv","Brand")
     df_yougov_monthly = concatenate_df(df_yougov_monthly, "data/tab2/new_YouGov/yougov_monthly.csv","Brand")
+    df_yougov_overall = df_yougov_daily.groupby("Brand").mean().reset_index().round(2)
     
 
 yougov_brand_presence = ["Awareness","Attention","WOM Exposure","Ad Awareness","Buzz"]
@@ -129,15 +130,19 @@ dropdown_options_tab2_1 = list(charts.keys())
 dropdown_options_tab2_2 = list(charts.keys())
 
 
-UPLOAD_STYLE = {
-                    'width': '100%',
-                    'height': '30px',
-                    'lineHeight': '30px',  # Reduce the lineHeight to match the height of the box
-                    'borderWidth': '1px',
-                    'borderStyle': 'dashed',
-                    'borderRadius': '5px',
-                    'textAlign': 'center',
-                }
+
+
+
+
+# Begin Content of sidebar in Tab 2
+switch_1_tab_2 =  html.Div(
+            [
+            html.P("Toggle Day/Week",style = SWITCH_NAME),
+            daq.BooleanSwitch(id='day-week-switch',on=False,style = SWITCH)
+            ]
+            ,style ={"height":"40px"}
+)
+
 upload_field = dcc.Upload(
                 id='upload-data',
                 children=html.Div([
@@ -148,15 +153,6 @@ upload_field = dcc.Upload(
                 # Allow multiple files to be uploaded
                 multiple=True
             )
-
-# Begin Content of sidebar in Tab 2
-switch_1_tab_2 =  html.Div(
-            [
-            html.P("Toggle Day/Week",style = SWITCH_NAME),
-            daq.BooleanSwitch(id='day-week-switch',on=False,style = SWITCH)
-            ]
-            ,style ={"height":"40px"}
-)
 
 sidebar_2 = [
         html.H3("Filters", style={"textAlign": "center","margin-bottom":"1rem"}),
@@ -187,12 +183,12 @@ sidebar_2 = [
 ]
 # End of content of sidebar in Tab 2
 
-# Begin content of main content in Tab 2
+# Begin main content of Tab 2
 
 brand_stocks_chart = dcc.Graph(
     id='brand_stocks_chart',
     style={**BASE_CHART,
-           "width": "78%"
+           "width": "100%"
     },
     config=GRAPH_CONFIG
 )
@@ -202,13 +198,13 @@ wordcloud_tabs = dcc.Tabs(
     value='positive',
     children=[
         dcc.Tab(
-            label='Positive',
+            label='+',
             value='positive',
             style={**SMALL_TABS, 'width':'35%'},
             selected_style={**SMALL_TABS_SELECTED, 'width':'35%'}
         ),
         dcc.Tab(
-            label='Negative',
+            label='-',
             value='negative',
             style={**SMALL_TABS, 'width':'35%'},
             selected_style={**SMALL_TABS_SELECTED, 'width':'35%'}
@@ -217,8 +213,8 @@ wordcloud_tabs = dcc.Tabs(
     style={
         "position": "absolute",
         "top": "5px",
-        "left": "65%",
-        "font-size": "11px"
+        "left": "79%",
+        "font-size": "15px"
     }
 )
 
@@ -454,10 +450,6 @@ def update_brand_stocks_chart(brand_dropdown, chart_dropdown, chart_dropdown_2, 
                   ,secondary_y=False)
     title = title_prefix + charts_axis_names[chart_dropdown]
     
-    # Second dropdown chart
-    # if chart_dropdown_2 != None:
-
-    
     fig.update_layout(margin={'l': 30, 'b': 40, 't': 30, 'r': 40}, hovermode='x unified', hoverlabel=dict(bgcolor="white", namelength = -1),paper_bgcolor='rgba(0,0,0,0)',
                     template = "simple_white", showlegend=True,
                     title={
@@ -572,8 +564,6 @@ def update_brand_stocks_chart(brand_dropdown, chart_dropdown, chart_dropdown_2, 
                     'yanchor': 'top',
                     'font': {"size": 16}},
         yaxis_title_standoff = 0,
-        # xaxis_hoverformat = "%{x:.2f} asdsad"
-        # showlegend = False
         )
         
         cross_correlation_fig.update_traces(hovertemplate = "%{y:.2f}")

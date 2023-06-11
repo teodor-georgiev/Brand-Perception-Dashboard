@@ -42,7 +42,7 @@ CONTENT = {
 }
 
 TAB = {
-    "width":"54.0%",
+    "width":"54.7%",
     "float":"left",
     "border":"1px solid #e0e0e0",
     'background-color': "#ffffff",
@@ -73,16 +73,16 @@ GRAPH = {
 
 GRAPH_CONFIG = {'displayModeBar': False}
 
-KNOLEDGE_GRAPH = {
-    "border":"1px solid #e0e0e0",
-    "float":"left",
-    "margin-top" : "10px",
-    "margin-left" : "10px",
-    "width":"18.3%",
-    "height":"550px",
-    "border-radius": "10px",
-    "background-color": "#ffffff"
-}
+# KNOLEDGE_GRAPH = {
+#     "border":"1px solid #e0e0e0",
+#     "float":"left",
+#     "margin-top" : "10px",
+#     "margin-left" : "10px",
+#     "width":"18.3%",
+#     "height":"550px",
+#     "border-radius": "10px",
+#     "background-color": "#ffffff"
+# }
 
 # Tab 2
 SMALL_TABS = {
@@ -115,17 +115,15 @@ BASE_CHART = {
 WORDCLOUD_LABEL = {
     "border": "0px solid #e0e0e0",
     "margin-top": "0px",
-    "margin-left": "17%",
-    "width": "92%",
-    "text-align": "left",
-    # "font-size": "0.9vw",
+    "width": "90%",
+    "text-align": "center",
     "font-size" : "18px",
-    "font-family": "Helvetica",
+    "font-family": "Helvetica",  
 }
 
 
 WORDCLOUD_PARENT = {
-    "width": "20.5%",
+    "width": "95%",
     "float": "left",
     "height": "450px",
     "margin-top": "10px",
@@ -169,3 +167,13 @@ YOUGOV_CHART = {
     "margin-left": "10px",
     "position": "relative"
 }
+
+UPLOAD_STYLE = {
+                    'width': '100%',
+                    'height': '30px',
+                    'lineHeight': '30px',  # Reduce the lineHeight to match the height of the box
+                    'borderWidth': '1px',
+                    'borderStyle': 'dashed',
+                    'borderRadius': '5px',
+                    'textAlign': 'center',
+                }
