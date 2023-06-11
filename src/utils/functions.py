@@ -160,6 +160,10 @@ def cross_correlation(df_1: pd.DataFrame, df_2: pd.DataFrame, column_name_1: str
     return df_cross_correlation
 
 
+def filter_data(data_frame, column, value):
+    return data_frame[data_frame[column] == value]
+
+
 def calculate_sentiment_percentages(df, neg_col, pos_col):
     total = df[neg_col] + df[pos_col]
     df[f"{neg_col}_perc"] = ((df[neg_col] / total) * 100).round(2)

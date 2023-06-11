@@ -420,25 +420,23 @@ content_tab2 = [content_first_row, content_second_row, content_third_row]
 def update_brand_stocks_chart(brand_dropdown, chart_dropdown, chart_dropdown_2, day_week_switch):
     # Read the data depending on the day/week switch
     if day_week_switch:
-        df_stocks_filtered = df_stocks_weeks[df_stocks_weeks["Brand Name"] == brand_dropdown]
-        df_tweets_filtered = df_tweets_sentiment_weekly[df_tweets_sentiment_weekly["brand"] == brand_dropdown]
-        df_tweets_count_filtered = df_tweets_count_weekly[df_tweets_count_weekly["brand"] == brand_dropdown]
-        df_stocktwits_filtered = df_stocktwits_weekly[df_stocktwits_weekly["brand"] == brand_dropdown]
-        df_stocktwits_count_filtered = df_stocktwits_count_weekly[df_stocktwits_count_weekly["brand"] == brand_dropdown]
-        df_yougov_filtered = df_yougov_weekly[df_yougov_weekly["Brand"] == brand_dropdown]
+        df_stocks_filtered = filter_data(df_stocks_weeks, "Brand Name", brand_dropdown)
+        df_tweets_filtered = filter_data(df_tweets_sentiment_weekly, "brand", brand_dropdown)
+        df_tweets_count_filtered = filter_data(df_tweets_count_weekly, "brand", brand_dropdown)
+        df_stocktwits_filtered = filter_data(df_stocktwits_weekly, "brand", brand_dropdown)
+        df_stocktwits_count_filtered = filter_data(df_stocktwits_count_weekly, "brand", brand_dropdown)
+        df_yougov_filtered = filter_data(df_yougov_weekly, "Brand", brand_dropdown)
         title_prefix = "Weekly "
-        lag_periods, lag_step = 56, 7
-        lag_name = "(Weeks)"
-    else:    
-        df_stocks_filtered = df_stocks_days[df_stocks_days["Brand Name"] == brand_dropdown]
-        df_tweets_filtered = df_tweets_sentiment_daily[df_tweets_sentiment_daily["brand"] == brand_dropdown]
-        df_tweets_count_filtered = df_tweets_count_daily[df_tweets_count_daily["brand"] == brand_dropdown]
-        df_stocktwits_filtered = df_stocktwits_daily[df_stocktwits_daily["brand"] == brand_dropdown]
-        df_stocktwits_count_filtered = df_stocktwits_count_daily[df_stocktwits_count_daily["brand"] == brand_dropdown]
-        df_yougov_filtered = df_yougov_daily[df_yougov_daily["Brand"] == brand_dropdown]
+        lag_periods, lag_step, lag_name = 56, 7, "(Weeks)"
+    else:
+        df_stocks_filtered = filter_data(df_stocks_days, "Brand Name", brand_dropdown)
+        df_tweets_filtered = filter_data(df_tweets_sentiment_daily, "brand", brand_dropdown)
+        df_tweets_count_filtered = filter_data(df_tweets_count_daily, "brand", brand_dropdown)
+        df_stocktwits_filtered = filter_data(df_stocktwits_daily, "brand", brand_dropdown)
+        df_stocktwits_count_filtered = filter_data(df_stocktwits_count_daily, "brand", brand_dropdown)
+        df_yougov_filtered = filter_data(df_yougov_daily, "Brand", brand_dropdown)
         title_prefix = "Daily "
-        lag_periods, lag_step = 28, 1
-        lag_name = "(Days)"
+        lag_periods, lag_step, lag_name = 28, 1, "(Days)"
     
     # Link dropdown values to corresponding dataframes
     charts_df = {"Stock Price": df_stocks_filtered, "Stock Price % Change": df_stocks_filtered, "Stock Volume": df_stocks_filtered, "Twitter Polarity": df_tweets_filtered,
@@ -446,21 +444,21 @@ def update_brand_stocks_chart(brand_dropdown, chart_dropdown, chart_dropdown_2, 
     yougov_charts_df = {key: df_yougov_filtered for key in yougov_charts.keys()}
     charts_df.update(yougov_charts_df)
     
+    # First dropdown chart
     x_1 = charts_df[chart_dropdown]["Date"]
     y_1 = charts_df[chart_dropdown][charts[chart_dropdown]]
-    x_2 = charts_df[chart_dropdown_2]["Date"] if chart_dropdown_2 != None else None
-    y_2 = charts_df[chart_dropdown_2][charts[chart_dropdown_2]] if chart_dropdown_2 != None else None
+
     
     fig = make_subplots(specs=[[{"secondary_y": True}]])
     fig.add_trace(go.Scatter(x=x_1, y=y_1, name=charts_axis_names[chart_dropdown], line=dict(width=1.5),connectgaps = True)
                   ,secondary_y=False)
     title = title_prefix + charts_axis_names[chart_dropdown]
-    if chart_dropdown_2 != None:
-        title += " vs. " + charts_axis_names[chart_dropdown_2]
-        fig.add_trace(go.Scatter(x=x_2, y=y_2, name=charts_axis_names[chart_dropdown_2],line=dict(width=1.5),connectgaps = True,),
-                      secondary_y=True)
     
-    fig.update_layout(margin={'l': 30, 'b': 40, 't': 30, 'r': 40}, hovermode='x unified', hoverlabel=dict(bgcolor="white"),paper_bgcolor='rgba(0,0,0,0)',
+    # Second dropdown chart
+    # if chart_dropdown_2 != None:
+
+    
+    fig.update_layout(margin={'l': 30, 'b': 40, 't': 30, 'r': 40}, hovermode='x unified', hoverlabel=dict(bgcolor="white", namelength = -1),paper_bgcolor='rgba(0,0,0,0)',
                     template = "simple_white", showlegend=True,
                     title={
                     'text': title,
@@ -485,6 +483,19 @@ def update_brand_stocks_chart(brand_dropdown, chart_dropdown, chart_dropdown_2, 
     
     # Add second y-axis if second dropdown is selected
     if chart_dropdown_2 != None:
+        x_2 = charts_df[chart_dropdown_2]["Date"] if chart_dropdown_2 != None else None
+        y_2 = charts_df[chart_dropdown_2][charts[chart_dropdown_2]] if chart_dropdown_2 != None else None
+        title += " vs. " + charts_axis_names[chart_dropdown_2]
+        fig.update_layout(title={
+                    'text': title,
+                    'y':0.97,
+                    'x':0.46,
+                    'xanchor': 'center',
+                    'yanchor': 'top'},)
+        
+        fig.add_trace(go.Scatter(x=x_2, y=y_2, name=charts_axis_names[chart_dropdown_2],line=dict(width=1.5),connectgaps = True,),
+                      secondary_y=True)
+        
         # Perform Pearson correlation
         r = pearson_correlation(charts_df[chart_dropdown], charts_df[chart_dropdown_2],charts[chart_dropdown], charts[chart_dropdown_2])
         r_str = str(round(r[0],2))
