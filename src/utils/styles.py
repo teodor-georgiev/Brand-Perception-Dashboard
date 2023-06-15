@@ -115,7 +115,7 @@ BASE_CHART = {
 WORDCLOUD_LABEL = {
     "border": "0px solid #e0e0e0",
     "margin-top": "0px",
-    "width": "90%",
+    "width": "95%",
     "text-align": "center",
     "font-size" : "18px",
     "font-family": "Helvetica",  

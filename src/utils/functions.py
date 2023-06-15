@@ -108,8 +108,6 @@ def pearson_correlation(df_1: pd.DataFrame, df_2: pd.DataFrame, column_name_1: s
     df_correlate = df_correlate.dropna()
     if len(df_correlate) <= 2:
         return (0, 1)
-    # x = df_correlate[column_name_1]
-    # y = df_correlate[column_name_2]
     r = stats.pearsonr(df_correlate[column_name_1], df_correlate[column_name_2])
     return r
 
@@ -140,6 +138,13 @@ def cross_correlation(df_1: pd.DataFrame, df_2: pd.DataFrame, column_name_1: str
     df_cross_correlation = pd.DataFrame({"Lag" : [], "Correlation" : [], "P-value" :[]})
     first_df = df_1.copy()
     second_df = df_2.copy()
+    
+    # # Rename the columns if they have the same name to avoid errors
+    # if column_name_1 == column_name_2:
+    #     column_name_rename = column_name_2 + "_2"
+    #     second_df = second_df.rename(columns={column_name_2: column_name_rename})
+    #     column_name_2 = column_name_rename
+  
     for i in range(-lag_periods, lag_periods + 1, lag_step):
         df_1 = first_df[['Date', column_name_1]]
         df_2 = second_df[['Date', column_name_2]]

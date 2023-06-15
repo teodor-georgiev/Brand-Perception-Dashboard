@@ -48,6 +48,9 @@ if os.path.isfile("data/tab2/new_tweets/twitter_sentiment_day_percent.csv"):
     df_sentiment_overall = df_tweets_sentiment_daily[["brand","sentiment_neg","sentiment_pos"]].groupby("brand").mean().reset_index()
     df_sentiment_overall = calculate_sentiment_percentages(df_sentiment_overall, "sentiment_neg", "sentiment_pos")
 
+df_tweets_sentiment_daily.rename(columns={"polarity":"twitter_polarity"}, inplace=True)
+df_tweets_sentiment_weekly.rename(columns={"polarity":"twitter_polarity"}, inplace=True)
+
 # Stocktwits Sentiment
 df_stocktwits_daily = pd.read_csv("data/tab2/stocktwits_daily.csv")
 df_stocktwits_weekly = pd.read_csv("data/tab2/stocktwits_weekly.csv")
@@ -115,7 +118,7 @@ apple_wordcloud_img = Image.open("data/tab2/wordclouds/Apple_positive_wordcloud_
 
 
 # Dictionary to map the charts to their names and corresponding column names in the dataframes
-charts = {"Stock Price":"Close","Stock Price % Change" :"pct_change","Stock Volume":"Volume","Twitter Polarity":"polarity","Tweets Count" : "tweets_count",
+charts = {"Stock Price":"Close","Stock Price % Change" :"pct_change","Stock Volume":"Volume","Twitter Polarity":"twitter_polarity","Tweets Count" : "tweets_count",
           "Stocktwits Polarity":"polarity","Stocktwits Count":"stocktwits_count"}
 yougov_charts = { col: col for col in df_yougov_daily.columns[1:-1]}
 charts.update(yougov_charts)
@@ -740,7 +743,7 @@ def update_yougov_monthlycharts(brand_dropdown,yougov_monthly_dropdown):
         name_split = str.split(i," ")
         name = "<br>".join(name_split[0:2])
         fig.add_trace(go.Scatter(x=df_yougov["Date"], y=df_yougov[i], mode='lines', name=name, line=dict(width=2),stackgroup='one' if df_yougov[i].min() >= 0 else "two"))
-    fig.update_layout(margin={'l': 20, 'b': 20, 't': 30, 'r': 145}, hovermode='x unified', hoverlabel=dict(bgcolor="white"),paper_bgcolor='rgba(0,0,0,0)', height=380,
+    fig.update_layout(margin={'l': 20, 'b': 20, 't': 30, 'r': 145}, hovermode='x unified', hoverlabel=dict(bgcolor="white",namelength = -1),paper_bgcolor='rgba(0,0,0,0)', height=380,
                       template="simple_white",showlegend=True,
                       legend=dict(
                         y=0.8,
