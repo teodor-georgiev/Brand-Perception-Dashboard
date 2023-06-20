@@ -42,7 +42,13 @@ for i in perceptions_list:
 sector_images = {}
 for i in sectors_list:
     sector_images[i] = Image.open(f"assets/{i}.png")
+    
+text_info = "This part of the dashboard uses data from the research paper Mining Brand Perceptions from Twitter Social Networks authored by Aron Culotta and Jennifer Cutler (2016) to visualize how brand perceptions mined from Twitter compare to Survey data. The central element of this section is a scatter plot that displays the chosen scores. Positioned directly beneath it are two box plots illustrating the distribution of specific scores for each selected sector. The data shown on the dashboard can be controlled through three drop-down menus. The first two menus allow the selection of perceptual attribute and score type (Social Perception Score or Survey) to be displayed on the X or Y-axis. The third menu enables the selection of multiple values and filters the industry sectors to be shown on the dashboard."
 
+link_text = "Mining Brand Perceptions from Twitter Social Networks"
+link_url = "https://pubsonline.informs.org/doi/abs/10.1287/mksc.2015.0968"
+
+link_element = html.A(link_text, href=link_url)
 # Begin content of sidebar in Tab 1
 switch_1 =  html.Div(
             [
@@ -71,9 +77,45 @@ switch_3 =  html.Div(
 )
 
 
+sidebar_top = html.Div(
+            [
+                html.H3("Filters", style={"textAlign": "center", "margin-bottom": "1rem"}),
+                html.A(
+                    html.I(className="fa fa-info-circle"),
+                    id="info-icon",
+                    href="#",
+                    style={"text-decoration": "none"}
+                ),
+            ],
+            style={"display": "flex", "align-items": "center", "justify-content": "center"}
+        )
+
+
 sidebar_1 = [
-        html.H3("Filters", style={"textAlign": "center",}),
-        html.Hr(style={"margin-top":"24px"}),
+        # sidebar_top,
+
+                html.Div(
+                    [
+                        html.H3("Filters", style={"margin-bottom": "1rem", "flex-grow": "1","text-align":"center"}),
+                        html.I(className="bi bi-info-circle",n_clicks = 0, style={"font-size": "20px", "color": "black","cursor": "pointer","margin-top":"8px"}),
+                        dbc.Modal(
+                                [
+                                    # dbc.ModalHeader(dbc.ModalTitle("Header")),
+                                    html.H3("Information",style={"margin-bottom":"10px","margin-left":"10px",}),
+                                    html.Span(style={"border-bottom":"1px solid #dee2e6"}),
+                                    dbc.ModalBody(        [text_info[:text_info.index(link_text)],
+        link_element,
+        text_info[text_info.index(link_text) + len(link_text):]]),
+                                ],
+                                id="modal",
+                                size="lg",
+                                is_open=True,
+                            ),
+                    ],
+                    style={"display": "flex", "align-items": "center", "justify-content": "space-between"}
+                ),
+        html.Hr(style={"margin-top":"1px"}),
+        
         dbc.Nav
         (
             [

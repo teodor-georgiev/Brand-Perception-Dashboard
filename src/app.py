@@ -2,6 +2,7 @@ from dash import Dash, dcc, html, Input, Output
 from utils.styles import *
 from tabs.tab1 import content_tab1, sidebar_1
 from tabs.tab2 import content_tab2, sidebar_2
+import dash_bootstrap_components as dbc
 # from tabs.render_content import *
 # dash_bootstrap_components.themes
 
@@ -65,11 +66,11 @@ dashboard_main = html.Div(
 
 
 
-
 external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
-# external_stylesheets.append(dbc.themes.BOOTSTRAP)
+external_stylesheets += ['https://use.fontawesome.com/releases/v5.8.1/css/all.css']
 
-app = Dash(__name__,external_stylesheets=external_stylesheets,suppress_callback_exceptions=True,
+
+app = Dash(__name__,external_stylesheets= [dbc.icons.BOOTSTRAP] + external_stylesheets ,suppress_callback_exceptions=True,
                 meta_tags=[{'name': 'viewport',
                             'content': 'width=device-width, initial-scale=1.0, maximum-scale=1.2, minimum-scale=0.5,'}])
 
