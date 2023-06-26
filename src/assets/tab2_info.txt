@@ -1,0 +1,6 @@
+The second section of the dashboard presents visual representations of brand perceptions and Social Media Sentiment for five different brands: Apple, Coca-Cola, H&M, Nike, and Starbucks. Users can choose the brand they want to view by interacting with the first dropdown menu. The other two dropdown menus allow users to select the metrics they want to visualize in the line chart. Additionally, users can select an additional Y-Axis to compare two metrics. This selection will also generate a Cross-Correlation chart, showing the Pearson-Correlation between the two chosen metrics, considering both negative and positive lags of the first metric.
+The data included in the dashboard comprises various categories:
+1. Stock Market Data about the company share price and volume traded.
+2. Twitter Sentiment Polarity and number of tweets.
+3. StockTwits Investor Sentiment Polarity and number of stock tweets.
+4. YouGov Brand Perception metrics.
