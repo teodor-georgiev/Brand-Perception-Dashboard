@@ -132,6 +132,7 @@ charts_axis_names.update(yougov_charts)
 dropdown_options_tab2_1 = list(charts.keys())
 dropdown_options_tab2_2 = list(charts.keys())
 
+# Read the info text from the txt file
 with open("assets/tab2_info.txt", "r") as f:
     modal_body = [
         f.read(),
@@ -149,6 +150,8 @@ with open("assets/tab2_info.txt", "r") as f:
 
 
 # Begin Content of sidebar in Tab 2
+
+# Modal for the info icon
 modal = html.Div(
     [
         html.H3("Filters", 
@@ -171,6 +174,7 @@ modal = html.Div(
     style={"display": "flex", "align-items": "center", "justify-content": "space-between"}
 )
 
+# Day/Week switch
 switch_1_tab_2 =  html.Div(
             [
             html.P("Toggle Day/Week",style = SWITCH_NAME),
@@ -179,6 +183,7 @@ switch_1_tab_2 =  html.Div(
             ,style ={"height":"40px"}
 )
 
+# Field to upload new data
 upload_field = dcc.Upload(
                 id='upload-data',
                 children=html.Div([
@@ -190,6 +195,7 @@ upload_field = dcc.Upload(
                 multiple=True
             )
 
+# Sidebar layout
 sidebar_2 = [
         modal,
         html.Hr(style={"margin-top":"1px"}),
@@ -221,6 +227,7 @@ sidebar_2 = [
 
 # Begin main content of Tab 2
 
+# Main line chart
 brand_stocks_chart = dcc.Graph(
     id='brand_stocks_chart',
     style={**BASE_CHART,
@@ -229,6 +236,7 @@ brand_stocks_chart = dcc.Graph(
     config=GRAPH_CONFIG
 )
 
+# Tabs to switch between the different wordclouds
 wordcloud_tabs = dcc.Tabs(
     id="tabs_wordcloud",
     value='positive',
@@ -291,6 +299,7 @@ radar_dropdown = html.Div(
     style=YOUGOV_SMALL_DROPDOWN_PARENT
 )
 
+# Dropdown to switch between the different YouGov Perception charts
 yougov_monthly_dropdown = html.Div(
     dcc.Dropdown(
         id='yougov-monthly-dropdown',
@@ -309,7 +318,6 @@ content_second_row = html.Div(
             id="crosscorrelation_chart",
             style={
                 **BASE_CHART,
-                # "width": "665px",
                 "margin-left": "3px"
             },
             config=GRAPH_CONFIG
@@ -324,7 +332,6 @@ content_second_row = html.Div(
             ],
             style={
                 **YOUGOV_CHART,
-                # "width": "786px"
             }
         ),
         html.Div(
@@ -338,16 +345,17 @@ content_second_row = html.Div(
             ],
             style={
                 **YOUGOV_CHART,
-                # "width": "385px"
             }
         ),
     ],
     style={"margin-left": "-22%"}, className="content_second_row"
 )
 
+# Day/Week/Month tabs for the sentiment chart
 day_week_month_tabs =  [dcc.Tab(label='D', value='D',style=SMALL_TABS,selected_style=SMALL_TABS_SELECTED),
                         dcc.Tab(label='W', value='W',style=SMALL_TABS,selected_style=SMALL_TABS_SELECTED),
                         dcc.Tab(label='M', value='M',style=SMALL_TABS,selected_style=SMALL_TABS_SELECTED)]
+
 
 content_third_row = html.Div(
     [
@@ -441,14 +449,19 @@ content_third_row = html.Div(
 
 content_tab2 = [content_first_row, content_second_row, content_third_row]
 
+####
 # Callbacks for Tab 2
-@callback(Output("brand_stocks_chart","figure"),
-              Output("crosscorrelation_chart","figure"),
-              Input("brand-dropdown","value"),
-              Input("chart-dropdown","value"),
-              Input("chart-dropdown-2","value"),
-              Input("day-week-switch","on"),
-              )
+####
+
+# Callback for the line and cross correlation charts
+@callback(
+    Output("brand_stocks_chart", "figure"),
+    Output("crosscorrelation_chart", "figure"),
+    Input("brand-dropdown", "value"),
+    Input("chart-dropdown", "value"),
+    Input("chart-dropdown-2", "value"),
+    Input("day-week-switch", "on"),
+)
 def update_brand_stocks_chart(brand_dropdown, chart_dropdown, chart_dropdown_2, day_week_switch):
     # Read the data depending on the day/week switch
     if day_week_switch:
@@ -504,7 +517,6 @@ def update_brand_stocks_chart(brand_dropdown, chart_dropdown, chart_dropdown_2, 
             
                     )
     # Round hoverdata to 2 decimal places
-    # fig.update_traces(hovertemplate = "%{x}<br>%{y:.2f}")
     # fig.update_traces(hovertemplate = "%{y:.2f}")
     fig.update_xaxes(title = "Date")
     fig.update_yaxes(title_text=charts_axis_names[chart_dropdown], secondary_y=False)
@@ -524,7 +536,7 @@ def update_brand_stocks_chart(brand_dropdown, chart_dropdown, chart_dropdown_2, 
         fig.add_trace(go.Scatter(x=x_2, y=y_2, name=charts_axis_names[chart_dropdown_2],line=dict(width=1.5),connectgaps = True,),
                       secondary_y=True)
         
-        # Perform Pearson correlation
+        # Calculate Pearson correlation
         r = pearson_correlation(charts_df[chart_dropdown], charts_df[chart_dropdown_2],charts[chart_dropdown], charts[chart_dropdown_2])
         r_str = str(round(r[0],2))
         p = r[1]
@@ -609,10 +621,13 @@ def update_brand_stocks_chart(brand_dropdown, chart_dropdown, chart_dropdown_2, 
     
     return fig, cross_correlation_fig
 
-@callback(Output("brand_sentiment_time_chart","figure"),
-              Input("brand-dropdown","value"),
-              Input("tabs_sentiment","value"),
-              )
+
+# Callback for the Twitter brand sentiment chart
+@callback(
+    Output("brand_sentiment_time_chart","figure"),
+    Input("brand-dropdown","value"),
+    Input("tabs_sentiment","value"),
+)
 def update_brand_sentiment_chart(brand_dropdown,tabs_sentiment):
     brand = brand_dropdown
     if tabs_sentiment == "D":
@@ -640,10 +655,13 @@ def update_brand_sentiment_chart(brand_dropdown,tabs_sentiment):
                     )
     return fig
 
-@callback(Output("brand_sentiment_time_chart_StockTwits","figure"),
-              Input("brand-dropdown","value"),
-              Input("tabs_sentiment_StockTwits","value"),
-              )
+
+# Callback for the StockTwits brand sentiment chart
+@callback(
+    Output("brand_sentiment_time_chart_StockTwits","figure"),
+    Input("brand-dropdown","value"),
+    Input("tabs_sentiment_StockTwits","value"),
+)
 def update_brand_sentiment_chart_StockTwits(brand_dropdown,tabs_sentiment):
     brand = brand_dropdown
     if tabs_sentiment == "D":
@@ -671,27 +689,30 @@ def update_brand_sentiment_chart_StockTwits(brand_dropdown,tabs_sentiment):
     return fig
 
 # Remove dropdown options from second dropdown if they are selected in the first dropdown
-@callback(Output("chart-dropdown","options"),
-              Output("chart-dropdown-2","options"),
-              Input("chart-dropdown","value"),
-              Input("chart-dropdown-2","value")
-              )
+@callback(
+    Output("chart-dropdown","options"),
+    Output("chart-dropdown-2","options"),
+    Input("chart-dropdown","value"),
+    Input("chart-dropdown-2","value")
+)
 def remove_options_tab2(chart_dropdown_value,chart_dropdown_2_value):
     options = [x for x in dropdown_options_tab2_1 if x != chart_dropdown_2_value]
     options_2 = [x for x in dropdown_options_tab2_2 if x != chart_dropdown_value]
     return options, options_2
 
-# Brand image callback
-@callback(Output("brand-image","src"),
-              Input("brand-dropdown","value"),
-              )
+# Brand Logo Callback
+@callback(
+    Output("brand-image","src"),
+    Input("brand-dropdown","value"),
+)
 def update_brand_image_srs(brand_dropdown):
     return f"assets/{brand_dropdown}.png"
 
-  
-@callback(Output("brand_overall_sentiment","figure"),
-              Input("brand-dropdown","value"),
-              )
+# Callback for Twitter donut chart
+@callback(
+    Output("brand_overall_sentiment","figure"),
+    Input("brand-dropdown","value"),
+)
 def update_brand_overall_sentiment(brand_dropdown):
     df_sentiment = df_sentiment_overall[df_sentiment_overall["brand"] == brand_dropdown]
     if len(df_sentiment) == 0:
