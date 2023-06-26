@@ -141,7 +141,7 @@ with open("assets/tab2_info.txt", "r") as f:
         html.Ol([
             html.Li("Stock Market Data about the company share price and volume traded."),
             html.Li("Twitter Sentiment Polarity and number of tweets."),
-            html.Li("StockTwits Investor Sentiment Polarity and number of stock tweets."),
+            html.Li("StockTwits Investor Polarity and number of stock tweets."),
             html.Li("YouGov Brand Perception metrics.")
         ])
     ]
