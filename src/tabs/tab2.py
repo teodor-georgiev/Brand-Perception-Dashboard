@@ -132,12 +132,45 @@ charts_axis_names.update(yougov_charts)
 dropdown_options_tab2_1 = list(charts.keys())
 dropdown_options_tab2_2 = list(charts.keys())
 
-
+with open("assets/tab2_info.txt", "r") as f:
+    modal_body = [
+        f.read(),
+        html.P(""),
+        html.P("The data included in the dashboard comprises various categories:"),
+        html.Ol([
+            html.Li("Stock Market Data about the company share price and volume traded."),
+            html.Li("Twitter Sentiment Polarity and number of tweets."),
+            html.Li("StockTwits Investor Sentiment Polarity and number of stock tweets."),
+            html.Li("YouGov Brand Perception metrics.")
+        ])
+    ]
 
 
 
 
 # Begin Content of sidebar in Tab 2
+modal = html.Div(
+    [
+        html.H3("Filters", 
+                style={"margin-bottom": "1rem", "flex-grow": "1", "text-align": "center"}
+                ),
+        html.I(className="bi bi-info-circle", n_clicks=0, id="info-icon", style={"font-size": "20px", "color": "black", "cursor": "pointer", "margin-top": "8px"}),
+        dbc.Modal(
+            [
+                html.H3("Information", style={"margin-bottom": "10px", "margin-left": "10px"}),
+                html.Span(style={"border-bottom": "1px solid #dee2e6"}),
+                dbc.ModalBody(modal_body,
+                              style={"line-height": "1.75"}),
+                dbc.ModalFooter(dbc.Button("Close", id="close-modal", className="ml-auto")),
+            ],
+            id="modal-2",
+            size="lg",
+            is_open=False,
+        ),
+    ],
+    style={"display": "flex", "align-items": "center", "justify-content": "space-between"}
+)
+
 switch_1_tab_2 =  html.Div(
             [
             html.P("Toggle Day/Week",style = SWITCH_NAME),
@@ -158,7 +191,7 @@ upload_field = dcc.Upload(
             )
 
 sidebar_2 = [
-        html.H3("Filters", style={"textAlign": "center","margin-bottom":"1rem"}),
+        modal,
         html.Hr(style={"margin-top":"1px"}),
         html.Img(id="brand-image",src="assets/Apple.png",style={"width":"100%","height":"110px","object-fit":"contain","margin-top":"-30px"}),
         dbc.Nav
@@ -472,7 +505,7 @@ def update_brand_stocks_chart(brand_dropdown, chart_dropdown, chart_dropdown_2, 
                     )
     # Round hoverdata to 2 decimal places
     # fig.update_traces(hovertemplate = "%{x}<br>%{y:.2f}")
-    fig.update_traces(hovertemplate = "%{y:.2f}")
+    # fig.update_traces(hovertemplate = "%{y:.2f}")
     fig.update_xaxes(title = "Date")
     fig.update_yaxes(title_text=charts_axis_names[chart_dropdown], secondary_y=False)
     
@@ -896,3 +929,16 @@ def process_csv(list_of_contents, list_of_names):
                     'borderRadius': '5px',
                     'textAlign': 'center',
                 }
+    
+    
+@callback(
+    Output("modal-2", "is_open"),
+    [Input("info-icon", "n_clicks"), Input("close-modal", "n_clicks")],
+    [State("modal-2", "is_open")],
+)
+def toggle_modal(n_info, n_close, is_open):
+    if n_info:
+        return not is_open
+    elif n_close:
+        return False
+    return is_open
