@@ -27,7 +27,7 @@ tabs = html.Div(
                             value='tab_1',
                             style = {'borderBottom': '0px solid #d6d6d6',"borderLeft": "0px solid #e0e0e0","background-color": "#ffffff","borderTop": "0px solid #e0e0e0"},
                             selected_style = {"borderLeft": "0px solid #e0e0e0"}),
-                    dcc.Tab(label="Brand Perceptions' effect on Stock Price",
+                    dcc.Tab(label="UGC, Brand Perception and Stock Market Data",
                             value='tab_2',
                             style = {'borderBottom': '0px solid #d6d6d6',"background-color": "#ffffff","borderTop": "0px solid #e0e0e0","borderRight": "0px solid #d6d6d6",
                                      "border-radius": "0px 10px 10px 0px"},
