@@ -430,7 +430,7 @@ content_third_row = html.Div(
                     style={
                         "position": "absolute",
                         "top": "5px",
-                        "left": "85%",
+                        "left": "82.5%",
                         "font-size": "11px"
                     }
                 ),
