@@ -445,6 +445,4 @@ def concatenate_df (df, new_df_path, brand_column):
     df.sort_values(by = [brand_column, "Date"], inplace = True)
     return df
     
-    
-            
 

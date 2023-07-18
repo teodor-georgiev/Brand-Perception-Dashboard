@@ -3,8 +3,7 @@ from utils.styles import *
 from tabs.tab1 import content_tab1, sidebar_1
 from tabs.tab2 import content_tab2, sidebar_2
 import dash_bootstrap_components as dbc
-# from tabs.render_content import *
-# dash_bootstrap_components.themes
+
 
 
 
@@ -19,22 +18,43 @@ dashboard_name = html.Div(
 )
 
 tabs = html.Div(
-                [
-                dcc.Tabs(id="tabs", 
-                        value='tab_2', 
-                        children=[
-                    dcc.Tab(label='Mining Brand Perceptions from Twitter', 
-                            value='tab_1',
-                            style = {'borderBottom': '0px solid #d6d6d6',"borderLeft": "0px solid #e0e0e0","background-color": "#ffffff","borderTop": "0px solid #e0e0e0"},
-                            selected_style = {"borderLeft": "0px solid #e0e0e0"}),
-                    dcc.Tab(label="UGC, Brand Perception and Stock Market Data",
-                            value='tab_2',
-                            style = {'borderBottom': '0px solid #d6d6d6',"background-color": "#ffffff","borderTop": "0px solid #e0e0e0","borderRight": "0px solid #d6d6d6",
-                                     "border-radius": "0px 10px 10px 0px"},
-                            selected_style = {"borderRight": "0px solid #e0e0e0","border-radius": "0px 10px 10px 0px"}),
-                    ])
-                ],
-                style=TAB
+    [
+        dcc.Tabs(
+            id="tabs",
+            value='tab_2',
+            children=[
+                dcc.Tab(
+                    label='Mining Brand Perceptions from Twitter',
+                    value='tab_1',
+                    style={
+                        'borderBottom': '0px solid #d6d6d6',
+                        'borderLeft': '0px solid #e0e0e0',
+                        'background-color': '#ffffff',
+                        'borderTop': '0px solid #e0e0e0'
+                    },
+                    selected_style={
+                        'borderLeft': '0px solid #e0e0e0'
+                    }
+                ),
+                dcc.Tab(
+                    label='UGC, Brand Perception and Stock Market Data',
+                    value='tab_2',
+                    style={
+                        'borderBottom': '0px solid #d6d6d6',
+                        'background-color': '#ffffff',
+                        'borderTop': '0px solid #e0e0e0',
+                        'borderRight': '0px solid #d6d6d6',
+                        'border-radius': '0px 10px 10px 0px'
+                    },
+                    selected_style={
+                        'borderRight': '0px solid #e0e0e0',
+                        'border-radius': '0px 10px 10px 0px'
+                    }
+                ),
+            ]
+        ),
+    ],
+    style=TAB
 )
 
 # Define the layout of the sidebar
@@ -50,9 +70,6 @@ sidebar_panel = html.Div(id = "sidebar_panel",
 content = html.Div(id="content", children=[],
     style=CONTENT
 )
-
-
-
 
 
 

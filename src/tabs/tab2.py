@@ -109,7 +109,7 @@ yougov_brand_presence = ["Awareness","Attention","WOM Exposure","Ad Awareness","
 yougov_brand_image = ["Impression","Quality","Value","Recommend","Satisfaction","Reputation"]
 yougov_brand_relationship = ["Consideration", "Purchase Intent", "Current Customer ", "Former Customer"]
 
-# brands_list = df_yougov_daily["Brand"].unique()
+brands_list = df_stocks_days["Brand Name"].unique()
 # Options for the dropdown menu in the monthly and radar YouGov charts
 options = ['Image', 'Pressence', 'Relationship']
 radar_options = [{'label': option, 'value': option} for option in options]
@@ -499,7 +499,7 @@ def update_brand_stocks_chart(brand_dropdown, chart_dropdown, chart_dropdown_2, 
                   ,secondary_y=False)
     title = title_prefix + charts_axis_names[chart_dropdown]
     
-    fig.update_layout(margin={'l': 30, 'b': 40, 't': 30, 'r': 40}, hovermode='x unified', hoverlabel=dict(bgcolor="white", namelength = -1),paper_bgcolor='rgba(0,0,0,0)',
+    fig.update_layout(margin={'l': 30, 'b': 40, 't': 30, 'r': 40}, hovermode='x unified', hoverlabel=dict(bgcolor="white"),paper_bgcolor='rgba(0,0,0,0)',
                     template = "simple_white", showlegend=True,
                     title={
                     'text': title,
@@ -517,7 +517,7 @@ def update_brand_stocks_chart(brand_dropdown, chart_dropdown, chart_dropdown_2, 
             
                     )
     # Round hoverdata to 2 decimal places
-    # fig.update_traces(hovertemplate = "%{y:.2f}")
+    fig.update_traces(hovertemplate = "%{y:.2f}")
     fig.update_xaxes(title = "Date")
     fig.update_yaxes(title_text=charts_axis_names[chart_dropdown], secondary_y=False)
     
@@ -535,6 +535,7 @@ def update_brand_stocks_chart(brand_dropdown, chart_dropdown, chart_dropdown_2, 
         
         fig.add_trace(go.Scatter(x=x_2, y=y_2, name=charts_axis_names[chart_dropdown_2],line=dict(width=1.5),connectgaps = True,),
                       secondary_y=True)
+        fig.update_traces(hovertemplate = "%{y:.2f}")
         
         # Calculate Pearson correlation
         r = pearson_correlation(charts_df[chart_dropdown], charts_df[chart_dropdown_2],charts[chart_dropdown], charts[chart_dropdown_2])
@@ -555,8 +556,6 @@ def update_brand_stocks_chart(brand_dropdown, chart_dropdown, chart_dropdown_2, 
                                         yref="paper"
                                         ))
         
-    # fig.update_xaxes(rangeselector_x=0.85, rangeselector_y=1, rangeselector_font_size=11.5)
-    # fig.update_layout(xaxis_rangeslider_visible=False)
     if chart_dropdown_2 == None:
         cross_correlation_fig = go.Figure(go.Scatter(
                 x=[0],
