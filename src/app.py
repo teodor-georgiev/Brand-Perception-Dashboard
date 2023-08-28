@@ -21,7 +21,7 @@ tabs = html.Div(
     [
         dcc.Tabs(
             id="tabs",
-            value='tab_2',
+            value='tab_1',
             children=[
                 dcc.Tab(
                     label='Mining Brand Perceptions from Twitter',
